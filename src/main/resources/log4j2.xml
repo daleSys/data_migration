@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+
+	<Properties>
+         <Property name="log-path">/Users/yangzhao/Desktop/log</Property>
+          <!--<Property name="log-path">/mnt/huamai/server_log/test_server</Property>-->
+    </Properties>
+
+	<!-- 定义所有的appender -->
+	<appenders>
+		<!-- 输出控制台的配置 -->
+		<Console name="Console" target="SYSTEM_OUT">
+			<!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+			<ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY" />
+			<!-- 输出日志的格式 -->
+			<PatternLayout charset="UTF-8" pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n" />
+		</Console>
+		
+		<!--这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
+		<RollingFile name="info" fileName="${log-path}/info" filePattern="${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log">
+			<Filters>
+				<ThresholdFilter level="warn" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+			</Filters>
+			<PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
+			<SizeBasedTriggeringPolicy size="50MB" />
+		</RollingFile>
+		<RollingFile name="debug" fileName="${log-path}/debug" filePattern="${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%d.log">
+			 <Filters>
+                <ThresholdFilter level="info" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+            </Filters>
+			<PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
+			<SizeBasedTriggeringPolicy size="50MB" />
+		</RollingFile>
+		<RollingFile name="error" fileName="${log-path}/error" filePattern="${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%e.log">
+			<Filters>
+				<ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
+			</Filters>
+			<PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
+			<SizeBasedTriggeringPolicy size="50MB" />
+		</RollingFile>
+	</appenders>
+	<!--然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
+	<loggers>
+		 <!-- <logger name="org.mybatis" level="DEBUG">
+			<appenderref ref="debug" />
+			<appenderref ref="Console" />
+		</logger> -->
+		
+		<!-- <logger name="java.sql" level="DEBUG">
+			<appenderref ref="debug" />
+			<appenderref ref="Console" />
+		</logger> -->
+		<!-- 默认的root的logger -->
+		<root level="trace">
+			<appender-ref ref="Console" />
+			<appender-ref ref="info" />
+			<appender-ref ref="debug" />
+			<appender-ref ref="error" />
+		</root>
+	</loggers>
+</configuration>
