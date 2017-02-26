@@ -1,6 +1,5 @@
 package com.yangzhao.dao;
 
-import com.yangzhao.datasources.Read;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DataAccessException;
@@ -10,7 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import javax.annotation.Resource;
+
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
