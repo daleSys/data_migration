@@ -89,7 +89,7 @@ public class MigrationController {
     @RequestMapping("/sql/execute")
     @ResponseBody
     public Object execute(HttpSession session,String sourceSql,String tegetSql){
-        boolean execute = migrationServiceImpl.execute(session.getId(), sourceSql, tegetSql);
+        long execute = migrationServiceImpl.execute(session.getId(), sourceSql, tegetSql);
         return execute;
     }
 }

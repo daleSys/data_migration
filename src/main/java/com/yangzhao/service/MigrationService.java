@@ -34,6 +34,6 @@ public interface MigrationService {
      * @param targetSql
      * @return
      */
-    public boolean execute(String sessionId,String sourceSql,String targetSql);
+    public long execute(String sessionId,String sourceSql,String targetSql);
 
 }

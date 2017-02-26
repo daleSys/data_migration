@@ -22,8 +22,8 @@ public class BaseDao {
 	
 	private static final Logger logger=LogManager.getLogger(BaseDao.class);
 	
-	@Resource(name = "jdbcTemplate")
-	private JdbcTemplate jdbcTemplate;
+//	@Resource(name = "jdbcTemplate")
+	private JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;

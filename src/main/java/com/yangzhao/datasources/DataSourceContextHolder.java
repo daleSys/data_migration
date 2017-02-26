@@ -6,7 +6,9 @@ import javax.sql.DataSource;
  * Created by yangzhao on 17/2/7.
  */
 public class DataSourceContextHolder {
+
     private static final ThreadLocal<DataSource> contextHolder = new ThreadLocal<DataSource>();
+
     /**
      * @Description: 设置数据源类型
      * @param dataSource  数据源名称

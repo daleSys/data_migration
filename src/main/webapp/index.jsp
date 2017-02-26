@@ -155,11 +155,7 @@
             alert(source_sql);
             var target_sql = $("#target_sql").val();
             $.post("/sql/execute",{sourceSql:source_sql,tegetSql:target_sql},function(data){
-                if (data){
-                    alert("操作成功！");
-                }else{
-                    alert("操作失败！");
-                }
+                alert("成功迁移"+data+"条");
             });
         }
     </script>

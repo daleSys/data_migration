@@ -100,34 +100,49 @@ public class MigrationServiceImpl implements MigrationService {
     }
 
     @Override
-    public boolean execute(String sessionId, String sourceSql, String targetSql) {
+    public long execute(String sessionId, String sourceSql, String targetSql) {
         Map userDataSources = DataSourceManager.getInstance().getUserDataSources(sessionId);
         DataSource dataSource = (DataSource) userDataSources.get("read");
         baseDao.getJdbcTemplate().setDataSource(dataSource);
-        List<Map<String, Object>> mapList = baseDao.getJdbcTemplate().queryForList(sourceSql);
-        StringBuilder values = new StringBuilder();
-        List params = new ArrayList();
-        mapList.stream().forEach(map->{
-            StringBuilder value = new StringBuilder();
-            value.append("(");
-            map.forEach((k,v)->{
-                value.append("?,");
-                params.add(v);
-            });
-
-            String v = value.substring(0, value.length() - 1);
-            v+="),";
-            values.append(v);
-        });
-        String s = values.toString();
-        s = s.substring(0,s.length()-1);
-        targetSql+=s;
-        DataSource writeDataSource = (DataSource) userDataSources.get("write");
-        baseDao.getJdbcTemplate().setDataSource(writeDataSource);
-        int update = baseDao.getJdbcTemplate().update(targetSql, params.toArray());
-        if (update>0){
-            return true;
+        String[] froms = sourceSql.split("from");
+        String sourceTableName = froms[1];
+        long count = baseDao.getJdbcTemplate().queryForObject("select count(1) from " + sourceTableName,Long.class);
+        int queryNum = 0;
+        if (count%10000 == 0){
+            queryNum=(int)count/10000;
+        }else{
+            queryNum=((int)count/10000)+1;
         }
-        return false;
+        long num = 0;
+        for (int i=0;i<queryNum;i++){
+            dataSource = (DataSource) userDataSources.get("read");
+            baseDao.getJdbcTemplate().setDataSource(dataSource);
+            List<Map<String, Object>> mapList = baseDao.getJdbcTemplate().queryForList(sourceSql+" limit 10000 offset "+i*10000);
+            StringBuilder values = new StringBuilder();
+            List params = new ArrayList();
+            mapList.stream().forEach(map->{
+                StringBuilder value = new StringBuilder();
+                value.append("(");
+                map.forEach((k,v)->{
+                    value.append("?,");
+                    params.add(v);
+                });
+
+                String v = value.substring(0, value.length() - 1);
+                v+="),";
+                values.append(v);
+            });
+            String s = values.toString();
+            s = s.substring(0,s.length()-1);
+            String sql = targetSql+s;
+            DataSource writeDataSource = (DataSource) userDataSources.get("write");
+            baseDao.getJdbcTemplate().setDataSource(writeDataSource);
+            int update = baseDao.getJdbcTemplate().update(sql, params.toArray());
+            if (update>0){
+                num+=1;
+            }
+        }
+        num = count;
+        return num;
     }
 }
