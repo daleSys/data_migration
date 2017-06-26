@@ -2,18 +2,18 @@ package com.yangzhao.service.impl;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
-import com.alibaba.druid.util.StringUtils;
 import com.yangzhao.bean.Property;
 import com.yangzhao.dao.BaseDao;
 import com.yangzhao.datasources.DataSourceManager;
 import com.yangzhao.service.MigrationService;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by yangzhao on 17/2/7.
@@ -54,24 +54,12 @@ public class MigrationServiceImpl implements MigrationService {
         Map userDataSources = DataSourceManager.getInstance().getUserDataSources(sessionId);
         DataSource readDataSource = (DataSource) userDataSources.get("read");
         DataSource writeDataSource = (DataSource) userDataSources.get("write");
-        StringBuilder readFields = new StringBuilder();
-        for (String field:fields) {
-            if (!StringUtils.isEmpty(field)) {
-                readFields.append(field + ",");
-            }
-        }
-        String rf = readFields.toString();
+        String rf = Arrays.stream(fields).collect(Collectors.joining(","));
         rf=rf.substring(0,rf.length()-1);
         String readSql = "select "+rf+" from "+tableName;
         baseDao.getJdbcTemplate().setDataSource(readDataSource);
         List<Map<String, Object>> mapList = baseDao.getJdbcTemplate().queryForList(readSql);
-        StringBuilder writeFields = new StringBuilder();
-        for (String targetField:targetFields) {
-            if (!StringUtils.isEmpty(targetField)) {
-                writeFields.append(targetField + ",");
-            }
-        }
-        String wf = writeFields.toString();
+        String wf = Arrays.stream(targetFields).collect(Collectors.joining(","));
         wf=wf.substring(0,wf.length()-1);
         StringBuilder wirteSql = new StringBuilder();
         List values = new ArrayList();
@@ -104,7 +92,7 @@ public class MigrationServiceImpl implements MigrationService {
         Map userDataSources = DataSourceManager.getInstance().getUserDataSources(sessionId);
         DataSource dataSource = (DataSource) userDataSources.get("read");
         baseDao.getJdbcTemplate().setDataSource(dataSource);
-        String[] froms = sourceSql.split("from");
+        String[] froms = sourceSql.toLowerCase().split("from");
         String sourceTableName = froms[1];
         long count = baseDao.getJdbcTemplate().queryForObject("select count(1) from " + sourceTableName,Long.class);
         int queryNum = 0;
